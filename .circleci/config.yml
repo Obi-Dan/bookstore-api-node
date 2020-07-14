@@ -6,7 +6,7 @@ executors:
       environment:
         IMAGE_NAME: danshoff/bookstore-api-node
       docker:
-        - image: circleci/buildpack-deps:strech
+        - image: circleci/buildpack-deps:stretch
 jobs:
   build-and-test:
     executor:
