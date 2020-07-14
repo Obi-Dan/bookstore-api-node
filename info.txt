@@ -1,0 +1,14 @@
+node app.js
+
+npm test
+
+npm install
+
+docker build danshoff/bookstore-api-node .
+
+docker run -p 49160:8080 -d --rm danshoff/bookstore-api-node
+
+
+Circle CI
+Node.js
+docker
