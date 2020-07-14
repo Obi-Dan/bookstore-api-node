@@ -1,6 +1,12 @@
 version: 2.1
 orbs:
   node: circleci/node@1.1.6
+executors:
+    docker-publisher:
+      environment:
+        IMAGE_NAME: bookstore-api-node
+      docker:
+        - image: circleci/buildpack-deps:strech
 jobs:
   build-and-test:
     executor:
@@ -12,21 +18,49 @@ jobs:
             - run: npm install
             - run: npm test
   docker-build:
-      environment:
-        IMAGE_NAME: danshoff/bookstore-api-node
-      docker:
-        - image: circleci/buildpack-deps:strech
-      steps:
-        - checkout
-        - setup_remote_docker
-        - run:
-            name: Build Docker image
-            command: docker build -t $IMAGE_NAME:latest
+    executor:
+      name: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image
+          command: docker build -t $IMAGE_NAME:latest .
+      - run:
+          name: Archive Docker Image
+          command: docker save -o image.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
+  docker-publish:
+    executor:
+      name: docker-publisher
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run:
+          name: Load Archived Docker Image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker image
+          command: |
+          echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          docker push $IMAGE_NAME:latest
 workflows:
     build-and-test:
       jobs:
         - build-and-test
         - docker-build:
+            requires:
+                - build-and-test
+            filters:
+              branches:
+                only: master
+        - docker-publish:
+            requires:
+                - docker-build
             filters:
               branches:
                 only: master
