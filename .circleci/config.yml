@@ -55,12 +55,14 @@ workflows:
       jobs:
         - build-and-test
         - docker-build:
+            context: docker
             requires:
                 - build-and-test
             filters:
               branches:
                 only: master
         - docker-publish:
+            context: docker
             requires:
                 - docker-build
             filters:
