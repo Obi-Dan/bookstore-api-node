@@ -25,7 +25,8 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build Docker Image
-          command: docker build -t $IMAGE_NAME:latest .
+          command: |
+            docker build -t $IMAGE_NAME:latest .
       - run:
           name: Archive Docker Image
           command: docker save -o image.tar $IMAGE_NAME
@@ -49,6 +50,7 @@ jobs:
           echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
           docker push $IMAGE_NAME:latest
 workflows:
+    version: 2
     build-and-test:
       jobs:
         - build-and-test
