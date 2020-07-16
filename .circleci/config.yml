@@ -53,13 +53,13 @@ workflows:
     build-master:
       jobs:
         - build-and-test
-        - docker-build:
-            context: docker
-            requires:
-                - build-and-test
-            filters:
-              branches:
-                only: master
+        # - docker-build:
+        #     context: docker
+        #     requires:
+        #         - build-and-test
+        #     filters:
+        #       branches:
+        #         only: master
         # - docker-publish-latest:
         #     context: docker
         #     requires:
